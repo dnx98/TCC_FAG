@@ -24,9 +24,9 @@ struct Rede {
 };
 
 Rede redes[] = {
-  {"Montanher", "montanher123"},
-  {"iPhone de Daniel", "12345679"},
-  {"Dipelnet_Daniel_2.4GHz", "apto0104"}
+  {"seuWIFI1", "suaSENHA1"},
+  {"seuWIFI2", "suaSENHA2"},
+  {"seuWIFI3", "suaSENHA3"}
 };
 const int nRedes = sizeof(redes) / sizeof(redes[0]);
 
@@ -50,7 +50,7 @@ void conectaWiFi() {
   if (WiFi.status() == WL_CONNECTED) return;
 
   for (int i = 0; i < nRedes; i++) {
-    Serial.printf("🔌 Tentando conectar em %s ...\n", redes[i].ssid);
+    Serial.printf("Tentando conectar em %s ...\n", redes[i].ssid);
     WiFi.begin(redes[i].ssid, redes[i].senha);
 
     unsigned long inicio = millis();
@@ -60,25 +60,25 @@ void conectaWiFi() {
     }
 
     if (WiFi.status() == WL_CONNECTED) {
-      Serial.printf("\n✅ Conectado em %s | IP: %s\n",
+      Serial.printf("\n Conectado em %s | IP: %s\n",
                     redes[i].ssid,
                     WiFi.localIP().toString().c_str());
-      return; // sai da função porque já conectou
+      return; // sai da função pois já conectou
     } else {
-      Serial.printf("\n❌ Falha em %s\n", redes[i].ssid);
+      Serial.printf("\n Falha em %s\n", redes[i].ssid);
     }
   }
 
-  Serial.println("⚠️ Nenhuma rede conectou!");
+  Serial.println(" Nenhuma rede conectou!");
 }
 
 void conectaMQTT() {
   while (!mqtt.connected() && WiFi.status() == WL_CONNECTED) {
-    Serial.print("🔄 Conectando MQTT...");
+    Serial.print("Conectando MQTT...");
     if (mqtt.connect("gateway_tcc")) {
-      Serial.println("✅ Conectado ao broker!");
+      Serial.println(" Conectado ao broker!");
     } else {
-      Serial.print("❌ Falha, rc=");
+      Serial.print(" Falha, rc=");
       Serial.println(mqtt.state());
       delay(2000);
     }
@@ -107,7 +107,7 @@ void taskLoRa(void *pvParameters) {
       int rssi = LoRa.packetRssi();
       float snr = LoRa.packetSnr();
 
-      Serial.print("📥 Pacote recebido: ");
+      Serial.print("Pacote recebido: ");
       Serial.print(recebido);
       Serial.print(" | RSSI=");
       Serial.print(rssi);
@@ -125,7 +125,7 @@ void taskLoRa(void *pvParameters) {
           nos[id - 1].rssi = rssi;
           nos[id - 1].snr = snr;
           nos[id - 1].atualizado = true;
-          Serial.printf("✅ Nó %d atualizado -> %s\n", id, valorStr.c_str());
+          Serial.printf(" Nó %d atualizado -> %s\n", id, valorStr.c_str());
         }
       }
     }
@@ -157,19 +157,19 @@ void taskGatewaySensores(void *pvParameters) {
     sensors_event_t hum, temp;
     aht.getEvent(&hum, &temp);
 
-    // Monta payload JSON
+    // payload JSON
     String payloadGateway = String("{\"solo\":") + valorFinal +
                             ",\"temp\":" + temp.temperature +
                             ",\"ur\":" + hum.relative_humidity + "}";
     mqtt.publish("tcc/sensor/gateway", payloadGateway.c_str());
 
     // --- Prints no Serial ---
-    Serial.print("🌱 Gateway ADC bruto: ");
+    Serial.print(" Gateway ADC bruto: ");
     Serial.print(valorADC);
-    Serial.print(" | 💧 Umidade tratada (%): ");
+    Serial.print(" |  Umidade tratada (%): ");
     Serial.println(valorFinal);
 
-    Serial.print("📤 Publicado [gateway] -> ");
+    Serial.print(" Publicado [gateway] -> ");
     Serial.println(payloadGateway);
 
     // Publica dados dos nós
@@ -180,7 +180,7 @@ void taskGatewaySensores(void *pvParameters) {
                          ",\"rssi\":" + nos[i].rssi +
                          ",\"snr\":" + nos[i].snr + "}";
         mqtt.publish(topico.c_str(), payload.c_str());
-        Serial.print("📤 Publicado [");
+        Serial.print(" Publicado [");
         Serial.print(topico);
         Serial.print("] -> ");
         Serial.println(payload);
@@ -209,7 +209,7 @@ void taskMQTT(void *pvParameters) {
 void taskWiFiMonitor(void *pvParameters) {
   for (;;) {
     if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("⚠️ WiFi caiu! Tentando reconectar...");
+      Serial.println(" WiFi caiu! Tentando reconectar...");
       conectaWiFi();
     }
     vTaskDelay(5000 / portTICK_PERIOD_MS);
@@ -228,16 +228,16 @@ void setup() {
 
   LoRa.setPins(PINO_LORA_SS, PINO_LORA_RST, PINO_LORA_DIO0);
   if (!LoRa.begin(915E6)) {
-    Serial.println("❌ Falha ao iniciar LoRa!");
+    Serial.println(" Falha ao iniciar LoRa!");
     while (1);
   }
-  Serial.println("✅ LoRa iniciado em 915 MHz");
+  Serial.println(" LoRa iniciado em 915 MHz");
 
   if (!aht.begin()) {
-    Serial.println("❌ Erro: AHT10 não encontrado!");
+    Serial.println(" Erro: AHT10 não encontrado!");
     while (1);
   }
-  Serial.println("✅ AHT10 inicializado");
+  Serial.println(" AHT10 inicializado");
 
   // Inicializa array de nós
   for (int i = 0; i < MAX_NOS; i++) {
