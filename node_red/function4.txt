@@ -1,0 +1,31 @@
+// === Caminho fixo para salvar CSV ===
+const CAMINHO = "C:\\Users\\Usuario\\Desktop\\tcc_data\\clima.csv";
+
+// === Timestamp BR ===
+function formatarDataHora() {
+    const d = new Date();
+    const data = d.toLocaleDateString('pt-BR');
+    const hora = d.toLocaleTimeString('pt-BR', { hour12: false });
+    return `${data} ${hora}`;
+}
+const agora = formatarDataHora();
+
+// === Últimos valores salvos ===
+let last = context.get('last') || { temp: null, ur: null };
+
+// --- Atualiza valores conforme payload recebido ---
+if (msg.payload.temp !== undefined) last.temp = Number(msg.payload.temp);
+if (msg.payload.ur !== undefined)   last.ur   = Number(msg.payload.ur);
+
+// --- Atualiza contexto ---
+context.set('last', last);
+
+// --- Monta payload pro CSV ---
+msg.filename = CAMINHO;
+msg.payload = {
+    timestamp: agora,
+    temp: last.temp ?? '',
+    ur: last.ur ?? ''
+};
+
+return msg;

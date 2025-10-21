@@ -1,0 +1,22 @@
+// === Function: Umidade para Gráfico ===
+
+// Cria vetor de saída
+let saidas = [];
+
+// --- Gateway ---
+if (msg.payload.solo !== undefined) {
+    saidas.push({ topic: "solo_gateway", payload: Number(msg.payload.solo) });
+}
+
+// --- Nó 1 ---
+if (msg.topic.endsWith("/no1") && msg.payload.valor !== undefined) {
+    saidas.push({ topic: "valor_no1", payload: Number(msg.payload.valor) });
+}
+
+// --- Nó 2 ---
+if (msg.topic.endsWith("/no2") && msg.payload.valor !== undefined) {
+    saidas.push({ topic: "valor_no2", payload: Number(msg.payload.valor) });
+}
+
+// Retorna todas as mensagens para o gráfico
+return [saidas];

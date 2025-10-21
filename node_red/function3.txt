@@ -1,0 +1,35 @@
+// === Caminho fixo para salvar CSV ===
+const CAMINHO = "C:\\Users\\Usuario\\Desktop\\tcc_data\\lora.csv";
+
+// === Timestamp BR ===
+function formatarDataHora() {
+    const d = new Date();
+    const data = d.toLocaleDateString('pt-BR');
+    const hora = d.toLocaleTimeString('pt-BR', { hour12: false });
+    return `${data} ${hora}`;
+}
+const agora = formatarDataHora();
+
+// === Últimos valores salvos ===
+let last = context.get('last') || { rssi_no1: null, snr_no1: null, rssi_no2: null, snr_no2: null };
+
+// --- Atualiza valores conforme o nó recebido ---
+if (msg.topic.endsWith("/no1") && msg.payload.rssi !== undefined) last.rssi_no1 = msg.payload.rssi;
+if (msg.topic.endsWith("/no1") && msg.payload.snr !== undefined)  last.snr_no1  = msg.payload.snr;
+if (msg.topic.endsWith("/no2") && msg.payload.rssi !== undefined) last.rssi_no2 = msg.payload.rssi;
+if (msg.topic.endsWith("/no2") && msg.payload.snr !== undefined)  last.snr_no2  = msg.payload.snr;
+
+// --- Atualiza contexto ---
+context.set('last', last);
+
+// --- Monta payload pro CSV ---
+msg.filename = CAMINHO;
+msg.payload = {
+    timestamp: agora,
+    rssi_no1: last.rssi_no1 ?? '',
+    snr_no1:  last.snr_no1  ?? '',
+    rssi_no2: last.rssi_no2 ?? '',
+    snr_no2:  last.snr_no2  ?? ''
+};
+
+return msg;

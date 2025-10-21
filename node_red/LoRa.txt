@@ -1,0 +1,18 @@
+// === Function: LoRa para Gráfico ===
+let out = [];
+
+if (msg.payload.rssi !== undefined) {
+    out.push({
+        topic: msg.topic.replace("tcc/sensor/", "") + "_rssi",
+        payload: Number(msg.payload.rssi)
+    });
+}
+
+if (msg.payload.snr !== undefined) {
+    out.push({
+        topic: msg.topic.replace("tcc/sensor/", "") + "_snr",
+        payload: Number(msg.payload.snr)
+    });
+}
+
+return [out];

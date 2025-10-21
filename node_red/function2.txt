@@ -1,0 +1,45 @@
+// === Caminho fixo para salvar o arquivo CSV ===
+const CAMINHO = "C:\\Users\\Usuario\\Desktop\\tcc_data\\umidade.csv";
+
+// === Timestamp atual ===
+function formatarDataHora() {
+    const d = new Date();
+    const data = d.toLocaleDateString('pt-BR');  // 08/10/2025
+    const hora = d.toLocaleTimeString('pt-BR', { hour12: false }); // 00:11:23
+    return `${data} ${hora}`;
+}
+
+const agora = formatarDataHora();
+
+
+// === Recupera último estado salvo ===
+let last = context.get('last') || { gateway: null, no1: null, no2: null };
+
+// --- Atualiza valores conforme o tópico ---
+if (msg.payload.solo !== undefined) {
+    last.gateway = Number(msg.payload.solo);
+}
+if (msg.topic.endsWith("/no1") && msg.payload.valor !== undefined) {
+    last.no1 = Number(msg.payload.valor);
+}
+if (msg.topic.endsWith("/no2") && msg.payload.valor !== undefined) {
+    last.no2 = Number(msg.payload.valor);
+}
+
+// --- Atualiza contexto ---
+context.set('last', last);
+
+// --- Só grava linha se tiver pelo menos um valor válido ---
+if (last.gateway !== null || last.no1 !== null || last.no2 !== null) {
+    msg.filename = CAMINHO;
+    msg.payload = {
+        datahora: agora,
+        gateway: last.gateway ?? '',
+        no1: last.no1 ?? '',
+        no2: last.no2 ?? ''
+    };
+    return msg;
+} else {
+    // nada pra gravar
+    return null;
+}

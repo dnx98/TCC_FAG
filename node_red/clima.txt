@@ -1,0 +1,12 @@
+// === Function: Clima para Gráfico ===
+let out = [];
+
+if (msg.payload.temp !== undefined) {
+    out.push({ topic: "temp_gateway", payload: Number(msg.payload.temp) });
+}
+
+if (msg.payload.ur !== undefined) {
+    out.push({ topic: "ur_gateway", payload: Number(msg.payload.ur) });
+}
+
+return [out];
