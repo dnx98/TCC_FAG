@@ -54,7 +54,7 @@ O sistema é composto por três partes principais:
 ## 👨‍💻 Autor
 
 **Daniel Montanher**  
-Engenharia Elétrica – FAG 2025  
+Engenharia Elétrica – Centro Univesitário da Fundação Assis Gurgacz - 2025  
 📍 Cascavel – PR  
 
 ---
